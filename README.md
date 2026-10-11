@@ -26,6 +26,18 @@ Human direction and review still apply: verify changes locally (`npm run test`, 
 
 All Cloudflare calls go through reviewed MCP `execute` templates in the main process — not direct REST from the renderer.
 
+## Screenshots
+
+Main window (domain names redacted for privacy):
+
+![MM MCP CF Manager — Overview tab](docs/screenshots/app-overview-redacted.png)
+
+First launch on Windows — SmartScreen may warn because `run-app.bat` is not code-signed:
+
+![Windows SmartScreen when running run-app.bat](docs/screenshots/windows-run-app-smartscreen-redacted.png)
+
+To regenerate redacted images after updating UI captures, place originals in `docs/screenshots/source/` and run `python scripts/redact-screenshots-for-readme.py` (requires Pillow). Do not commit unredacted sources.
+
 ## Requirements
 
 - [Node.js 24 LTS](https://nodejs.org/) or newer (on PATH for Desktop shortcut launches)
@@ -71,6 +83,8 @@ Create a custom token in the [Cloudflare dashboard](https://dash.cloudflare.com/
 For read-only inspection, start with **Zone Read** plus read scopes for DNS/cache/security/WAF as needed. Add write permissions when you enable mutations. Never commit tokens to the repository.
 
 ## Troubleshooting
+
+**Windows “Open File — Security Warning” (Unknown Publisher)** — Expected for v1: the app ships as a local folder plus `run-app.bat`, not a signed installer. Windows SmartScreen cannot verify a publisher on batch files downloaded from GitHub or copied from the internet (Mark of the Web). Click **Run** only if you trust this repository; use **Cancel** if you did not clone it yourself. To reduce prompts, clone from GitHub and run from that folder, or unblock the file in Properties → **Unblock** (advanced). A signed MSI/NSIS installer is out of scope for v1 (see blueprint).
 
 **“Preload bridge not available”** — The UI loaded without `window.mmcf`. Close the app, run `run-app.bat` from the project folder (or recreate the shortcut with `create-desktop-shortcut.bat` after updates). Check `%LOCALAPPDATA%\MM-MCP-CF-Manager\launcher.log` for `[main boot]` and prepare errors. Ensure Node.js **24+** is on PATH. If built files are missing, run `npm run build` or let `run-app.bat` run `app:prepare`. For hot reload, use `npm run dev` instead of the Desktop shortcut.
 
