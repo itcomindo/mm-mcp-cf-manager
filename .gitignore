@@ -54,3 +54,7 @@ Desktop.ini
 .idea/
 .vscode/
 !.vscode/extensions.json
+
+# README screenshots — never commit unredacted captures (real zone names)
+ss.png
+docs/screenshots/source/

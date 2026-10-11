@@ -28,15 +28,15 @@ All Cloudflare calls go through reviewed MCP `execute` templates in the main pro
 
 ## Screenshots
 
-Main window (domain names redacted for privacy):
+Main window (domain names and timestamps redacted for privacy):
 
-![MM MCP CF Manager — Overview tab](docs/screenshots/app-overview-redacted.png)
+![MM MCP CF Manager — Overview tab](docs/screenshots/app-screenshot.png)
 
 First launch on Windows — SmartScreen may warn because `run-app.bat` is not code-signed:
 
 ![Windows SmartScreen when running run-app.bat](docs/screenshots/windows-run-app-smartscreen-redacted.png)
 
-To regenerate redacted images after updating UI captures, place originals in `docs/screenshots/source/` and run `python scripts/redact-screenshots-for-readme.py` (requires Pillow). Do not commit unredacted sources.
+To regenerate the app screenshot, copy your capture to `docs/screenshots/source/ss-original.png` (gitignored), then run `python scripts/redact-screenshots-for-readme.py` (requires Pillow). Commit only `docs/screenshots/app-screenshot.png`, not `ss.png` or anything under `source/`.
 
 ## Requirements
 
