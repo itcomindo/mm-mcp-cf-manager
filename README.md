@@ -8,6 +8,12 @@ Unofficial desktop control panel for managing Cloudflare zones via the official 
 
 This application is not affiliated with or endorsed by Cloudflare, Inc.
 
+## Development transparency
+
+This repository was built with [Cursor](https://cursor.com/) as the primary IDE. Implementation work—including scaffolding, feature work, and documentation—was done with **Cursor Composer 2.5** (AI-assisted editing) guided by [MM-MCP-CF-Manager-Blueprint.md](MM-MCP-CF-Manager-Blueprint.md) and in-repo rules (MCP-only Cloudflare access, no credential logging, typed IPC).
+
+Human direction and review still apply: verify changes locally (`npm run test`, `npm run typecheck`, `npm run lint`) before trusting writes against live zones. Cursor and Composer are development tools only; they do not operate your Cloudflare account or endorse this project.
+
 ## Features
 
 - **Connection** — Save API token (OS-encrypted), test via `whoami`, sync zone list with multi-account pagination; zones cached in local SQLite
@@ -70,4 +76,8 @@ For read-only inspection, start with **Zone Read** plus read scopes for DNS/cach
 
 ## Specification
 
-Implementation details and phase history: [MM-MCP-CF-Manager-Blueprint.md](MM-MCP-CF-Manager-Blueprint.md)
+Full product spec, architecture, and phase history: [MM-MCP-CF-Manager-Blueprint.md](MM-MCP-CF-Manager-Blueprint.md)
+
+## License
+
+MIT — see [LICENSE](LICENSE).
