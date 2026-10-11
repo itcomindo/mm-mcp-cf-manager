@@ -1,0 +1,27 @@
+---
+description: Cloudflare MCP client, Code Mode execute templates, errors, capabilities
+globs: src/main/mcp/**,src/main/cloudflare/**
+alwaysApply: false
+---
+
+# Transport & auth
+
+- Official MCP TypeScript SDK + Streamable HTTP to `https://mcp.cloudflare.com/mcp`.
+- `Authorization: Bearer <API_TOKEN>` from CredentialService — never long-lived in renderer.
+
+# Code Mode (v1)
+
+- Production actions use **reviewed deterministic `execute` templates** via `McpCloudflareAdapter` / `executeReviewedOperation`.
+- No arbitrary JS from user text; no “run arbitrary MCP code” UI.
+- `search` for dev/diagnostics only — not on every button click.
+- Connection test: MCP `whoami`. Zone list: paginate; never assume ≤20 zones.
+
+# Safe execute (§4.3)
+
+Never concatenate unsanitized zone IDs, domains, DNS values, expressions, or labels into executable JS. Use a shared encoder that serializes dynamic values safely before template interpolation.
+
+# Capabilities & errors
+
+- Capability states: `available`, `unavailable`, `permission_missing`, `plan_restricted`, `unknown`, `loading` — disable UI with reason; do not confuse permission vs plan.
+- Normalize errors to app codes (§16): e.g. `AUTH_INVALID`, `RATE_LIMITED`, `PLAN_RESTRICTED`, `MCP_TOOL_ERROR`.
+- Every MCP call: explicit timeout/`AbortSignal` (§18). Respect `Retry-After` for bulk/task engine.

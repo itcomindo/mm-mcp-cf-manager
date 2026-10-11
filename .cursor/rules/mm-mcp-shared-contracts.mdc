@@ -1,0 +1,20 @@
+---
+description: Shared types, Zod IPC schemas, error envelopes
+globs: src/shared/**
+alwaysApply: false
+---
+
+# Schemas & types
+
+- Define IPC request/response shapes and domain DTOs in `src/shared/schemas` and `src/shared/types`.
+- Every IPC boundary validated with **Zod** on main (and mirror types for renderer clients).
+- Use strict TypeScript; avoid `any` except at deliberately isolated external SDK boundaries.
+
+# Errors
+
+- Shared error codes align with blueprint §16 (`CONNECTION_FAILED`, `VALIDATION_FAILED`, `CANCELLED`, etc.).
+- Envelope: `code`, safe user message, `retryable`, optional `retryAfterMs`, operation/zone context — no secrets in payloads.
+
+# Constants
+
+- MCP default endpoint, capability enums, task states, and app-wide constants live in `src/shared/constants` — single source for main and renderer types.

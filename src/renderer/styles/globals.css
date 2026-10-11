@@ -1,0 +1,117 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+:root,
+[data-theme='light'] {
+  --background: #f4f6f8;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-elevated: #f8fafc;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --border: #cbd5e1;
+  --input: #ffffff;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --accent: #0ea5e9;
+  --accent-foreground: #082f49;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --focus-ring: #2563eb;
+  --sidebar-active: #dbeafe;
+  --sidebar-selected: #eff6ff;
+}
+
+[data-theme='dark'] {
+  --background: #0b1220;
+  --foreground: #e2e8f0;
+  --surface: #111827;
+  --surface-elevated: #1f2937;
+  --muted: #374151;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  --input: #0f172a;
+  --primary: #3b82f6;
+  --primary-foreground: #eff6ff;
+  --accent: #38bdf8;
+  --accent-foreground: #082f49;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --focus-ring: #60a5fa;
+  --sidebar-active: #1e3a8a;
+  --sidebar-selected: #172554;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: var(--ui-root-size, 14px);
+  color: var(--foreground);
+  background: var(--background);
+}
+
+html[data-font-size='sm'] {
+  --ui-root-size: 12px;
+}
+html[data-font-size='s'] {
+  --ui-root-size: 13px;
+}
+html[data-font-size='md'] {
+  --ui-root-size: 14px;
+}
+html[data-font-size='l'] {
+  --ui-root-size: 16px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .bg-background {
+    background-color: var(--background);
+  }
+  .bg-surface {
+    background-color: var(--surface);
+  }
+  .bg-surface-elevated {
+    background-color: var(--surface-elevated);
+  }
+  .bg-muted {
+    background-color: var(--muted);
+  }
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-sidebar-active {
+    background-color: var(--sidebar-active);
+  }
+  .bg-sidebar-selected {
+    background-color: var(--sidebar-selected);
+  }
+  .text-foreground {
+    color: var(--foreground);
+  }
+  .text-muted-foreground {
+    color: var(--muted-foreground);
+  }
+  .text-primary-foreground {
+    color: var(--primary-foreground);
+  }
+  .border-border {
+    border-color: var(--border);
+  }
+  .ring-focus {
+    --tw-ring-color: var(--focus-ring);
+  }
+}

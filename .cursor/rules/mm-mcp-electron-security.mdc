@@ -1,0 +1,33 @@
+---
+description: Electron main/preload security, IPC, and credential handling
+globs: src/main/**,src/preload/**
+alwaysApply: false
+---
+
+# BrowserWindow / preload
+
+Mandatory: `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`, `webSecurity: true`.
+
+- Preload only: `contextBridge` exposing narrow typed API (e.g. `window.mmcf.zones.list()`).
+- Do **not** expose raw `ipcRenderer` to renderer code.
+- Restrictive CSP; no remote UI code in renderer; allowlist before `shell.openExternal`; block unexpected navigation/window creation.
+
+# IPC handlers
+
+Every `ipcMain.handle`:
+
+- Validate input with **Zod** (schemas in `src/shared/`).
+- Return typed success/error envelopes.
+- Enforce same permission/action rules as UI.
+- Validate sender/origin where applicable.
+
+# Credentials
+
+- Store token with `safeStorage` (async APIs); handle `isEncryptionAvailable()` failure.
+- Encrypted payload on disk only — never plaintext in SQLite or logs.
+- Token to renderer **only** on explicit Show/Copy; hidden again after reload/restart.
+- Redact Authorization, Bearer, API token in logs and exception serialization (§17).
+
+# Data location
+
+SQLite and secrets live under Electron `userData`, not the source tree. All DB access in **main** only.

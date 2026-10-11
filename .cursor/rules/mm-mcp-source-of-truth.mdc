@@ -1,0 +1,35 @@
+---
+description: MM MCP CF Manager blueprint — source of truth and non-negotiables
+alwaysApply: true
+---
+
+# Source of truth
+
+Read [MM-MCP-CF-Manager-Blueprint.md](MM-MCP-CF-Manager-Blueprint.md) before major features or when spec is unclear.
+
+## Product constraints
+
+- Electron desktop; TypeScript; React renderer; Tailwind 4; English UI only; MIT; no telemetry/analytics/ads.
+- Cloudflare via official MCP `https://mcp.cloudflare.com/mcp` — **deterministic** service calls, not an LLM chat app.
+- Do not replace MCP with direct REST without explicit blueprint change.
+- No LLM runtime dependency for v1.
+- Distribution: source folder + `run-app.bat` / desktop shortcut — **no** MSI/NSIS/electron-builder installer or portable EXE in v1.
+- Node.js **24+** for dev/source-run; pin stable Electron (44.x baseline unless verified newer stable).
+
+## Implementation order
+
+Implement **Phases 1–7** (blueprint §24). Prove **one write path end-to-end** (`Purge Everything`) before expanding other writes (§29). Bulk must reuse the same services, not duplicated logic.
+
+## Cursor must not
+
+1. Store API token in plaintext on disk or SQLite.
+2. Expose Node/MCP/DB to renderer.
+3. Use unbounded bulk concurrency or `Promise.all()` for multi-zone mutations.
+4. Enable write buttons before capability/permission is known.
+5. Mark writes successful before Cloudflare confirms.
+6. Log credentials or Authorization headers.
+7. Invent Cloudflare/MCP behavior — verify official docs when implementing each service.
+
+## Quality
+
+Strict TypeScript; avoid `any` except isolated external boundaries. Small reusable components. Centralized English strings where practical. Tests **alongside** each service (§23.15–16).

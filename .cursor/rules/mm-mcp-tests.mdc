@@ -1,0 +1,22 @@
+---
+description: Testing — mock MCP by default, coverage areas from blueprint §22
+globs: **/*.{test,spec}.{ts,tsx},tests/**
+alwaysApply: false
+---
+
+# Default
+
+- **Do not** mutate live Cloudflare zones in tests by default.
+- Integration tests: mock MCP transport/tools (`whoami`, zones pagination, DNS, purge, dev mode, UAM, WAF, 401/403, 429+Retry-After, 5xx, timeout).
+
+# Required unit areas (§22.1)
+
+Theme/font resolution; Zod IPC schemas; credential redaction; safe MCP value serialization; task queue concurrency; Retry-After; retry eligibility; resource locks; capability mapping; bulk immutable snapshot; task summaries.
+
+# Practice
+
+Add tests **with** each service (§23.15), not only at project end. Dry-run smoke before first live bulk mutation (§22.4).
+
+# Scripts
+
+Use project `npm run test`, `lint`, `typecheck` when present; keep mocks colocated under `tests/` or next to modules per existing convention once scaffolded.

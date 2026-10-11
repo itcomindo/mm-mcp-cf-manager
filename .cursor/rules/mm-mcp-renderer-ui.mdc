@@ -1,0 +1,24 @@
+---
+description: Renderer UI — no backend in React, design system, English strings
+globs: src/renderer/**
+alwaysApply: false
+---
+
+# Architecture
+
+- Renderer calls **only** preload `window.mmcf.*` — no MCP, Node, or SQLite.
+- State: Zustand. Business logic and Cloudflare calls stay in main services.
+
+# Design system (§10)
+
+- Tailwind 4 with semantic CSS variables (`--background`, `--primary`, `--danger`, etc.) — avoid scattered hard-coded colors.
+- Theme: `system` (default) | `light` | `dark` via `<html data-theme="...">`; follow OS when system; no flash on startup.
+- Font size: exact labels **SM | S | MD | L** via `<html data-font-size="...">` and root typography tokens.
+- Reusable `Button` variants: primary, secondary, ghost, destructive; adaptive disabled/loading states.
+- Opened zone vs bulk-selected row are **distinct** visual states (§6.3).
+
+# Copy & UX
+
+- All user-visible strings: **English**; prefer one centralized strings module.
+- Destructive/high-impact actions: confirmation dialogs (§10.8). Dirty forms: protect navigation (§11.4).
+- While tasks run: disable conflicting actions; show progress; do not leave buttons stuck after timeout (§9).

@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+release/
+.vite/
+*.tsbuildinfo
+
+# v1 distribution policy: no packaged installers (ignore accidental artifacts)
+*.exe
+*.msi
+*.portable
+win-unpacked/
+
+# Tests & coverage
+coverage/
+test-results/
+playwright-report/
+.playwright/
+
+# Logs & runtime preparation stamp
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.runtime-stamp
+
+# Secrets & local env
+.env
+.env.*
+!.env.example
+secrets.json
+*.pem
+*.key
+
+# Local SQLite (live data belongs in Electron userData)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Electron
+.electron/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE (keep shared extensions list if added later)
+.idea/
+.vscode/
+!.vscode/extensions.json
