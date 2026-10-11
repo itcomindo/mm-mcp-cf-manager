@@ -36,7 +36,7 @@ First launch on Windows — SmartScreen may warn because `run-app.bat` is not co
 
 ![Windows SmartScreen when running run-app.bat](docs/screenshots/windows-run-app-smartscreen-redacted.png)
 
-To regenerate the app screenshot, copy your capture to `docs/screenshots/source/ss-original.png` (gitignored), then run `python scripts/redact-screenshots-for-readme.py` (requires Pillow). Commit only `docs/screenshots/app-screenshot.png`, not `ss.png` or anything under `source/`.
+To regenerate the app screenshot, blur domain names in your capture (e.g. root `ss.png`), copy it to `docs/screenshots/source/ss-original.png` (gitignored), then run `python scripts/redact-screenshots-for-readme.py` (requires Pillow). The script applies an extra blur pass on headers and timestamps; commit only `docs/screenshots/app-screenshot.png`, not `ss.png` or anything under `source/`.
 
 ## Requirements
 
