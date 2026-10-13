@@ -5,6 +5,7 @@ import { strings } from '@renderer/strings/en'
 import { unwrapIpc } from '@renderer/lib/mmcf-client'
 import { writeDisabledReason } from '@renderer/lib/capability-ui'
 import { useSettingsStore } from '@renderer/stores/settings-store'
+import { usePurgeEverything } from '@renderer/features/zones/use-purge-everything'
 import { Button } from '@renderer/components/ui/Button'
 import { ConfirmDialog } from '@renderer/components/ui/ConfirmDialog'
 
@@ -21,17 +22,13 @@ export function CacheTab({
   refreshToken,
   onZoneMutated,
 }: CacheTabProps): JSX.Element {
-  const confirmHighImpact = useSettingsStore(
-    (s) => s.settings?.behavior.confirmSingleHighImpact ?? true,
-  )
   const dryRun = useSettingsStore((s) => s.settings?.behavior.dryRun ?? false)
 
   const [status, setStatus] = useState<CacheStatus | null>(null)
   const [overview, setOverview] = useState<ZoneOverview | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [purgeOpen, setPurgeOpen] = useState(false)
-  const [busy, setBusy] = useState<'purge' | 'dev' | null>(null)
+  const [busy, setBusy] = useState<'dev' | null>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -51,27 +48,27 @@ export function CacheTab({
     void load()
   }, [zoneId, refreshToken, load])
 
-  const purgeReason = writeDisabledReason(overview?.capabilities?.cachePurge)
-  const devReason = writeDisabledReason(overview?.capabilities?.devModeWrite)
+  const onPurgeComplete = useCallback((): void => {
+    onZoneMutated?.()
+    void load()
+  }, [load, onZoneMutated])
 
-  const runPurge = (): void => {
-    void (async () => {
-      setBusy('purge')
-      setNotice(null)
-      setError(null)
-      try {
-        const result = unwrapIpc(await window.mmcf.cache.purgeEverything(zoneId))
-        setNotice(result.dryRun ? strings.write.dryRunNotice : strings.write.success)
-        setPurgeOpen(false)
-        onZoneMutated?.()
-        await load()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : strings.write.actionFailed)
-      } finally {
-        setBusy(null)
-      }
-    })()
-  }
+  const purge = usePurgeEverything({
+    zoneId,
+    cachePurge: overview?.capabilities?.cachePurge,
+    onComplete: onPurgeComplete,
+  })
+
+  useEffect(() => {
+    if (purge.lastNotice) setNotice(purge.lastNotice)
+  }, [purge.lastNotice])
+
+  useEffect(() => {
+    if (purge.lastError) setError(purge.lastError)
+  }, [purge.lastError])
+
+  const devReason = writeDisabledReason(overview?.capabilities?.devModeWrite)
+  const purgeBusy = purge.loading
 
   const toggleDevMode = (enabled: boolean): void => {
     void (async () => {
@@ -125,18 +122,15 @@ export function CacheTab({
       <div className="flex flex-wrap gap-2">
         <Button
           variant="destructive"
-          disabled={Boolean(purgeReason) || busy !== null}
-          loading={busy === 'purge'}
-          title={purgeReason ?? undefined}
-          onClick={() => {
-            if (confirmHighImpact) setPurgeOpen(true)
-            else runPurge()
-          }}
+          disabled={Boolean(purge.disabledReason) || purgeBusy || busy !== null}
+          loading={purgeBusy}
+          title={purge.disabledReason ?? undefined}
+          onClick={purge.openConfirmOrRun}
         >
           {strings.write.purgeEverything}
         </Button>
         <Button
-          disabled={Boolean(devReason) || busy !== null || status?.developmentMode === true}
+          disabled={Boolean(devReason) || busy !== null || purgeBusy || status?.developmentMode === true}
           loading={busy === 'dev'}
           title={devReason ?? undefined}
           onClick={() => toggleDevMode(true)}
@@ -144,7 +138,7 @@ export function CacheTab({
           {strings.write.devModeOn}
         </Button>
         <Button
-          disabled={Boolean(devReason) || busy !== null || status?.developmentMode === false}
+          disabled={Boolean(devReason) || busy !== null || purgeBusy || status?.developmentMode === false}
           loading={busy === 'dev'}
           title={devReason ?? undefined}
           onClick={() => toggleDevMode(false)}
@@ -153,15 +147,15 @@ export function CacheTab({
         </Button>
       </div>
       <ConfirmDialog
-        open={purgeOpen}
+        open={purge.confirmOpen}
         title={strings.write.purgeConfirmTitle}
         message={strings.write.purgeConfirmMessage(domain)}
         confirmLabel={strings.write.purgeEverything}
         cancelLabel={strings.write.cancel}
         destructive
-        loading={busy === 'purge'}
-        onCancel={() => setPurgeOpen(false)}
-        onConfirm={runPurge}
+        loading={purgeBusy}
+        onCancel={purge.closeConfirm}
+        onConfirm={purge.confirmAndRun}
       />
     </div>
   )

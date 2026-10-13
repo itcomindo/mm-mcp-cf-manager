@@ -28,6 +28,8 @@ export const strings = {
     lastSyncedTitle: (when: string) => `Last zone sync: ${when}`,
     detailRefreshMarkerTitle: 'Detail refresh status',
     resizeHandle: 'Resize sidebar',
+    purgeButton: '[Purge]',
+    purgeButtonTitle: (domain: string) => `Purge entire cache for ${domain}`,
   },
   tabs: {
     overview: 'Overview',

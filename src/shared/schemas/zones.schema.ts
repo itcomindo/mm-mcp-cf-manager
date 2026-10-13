@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { capabilityStateSchema } from './capabilities.schema'
 
 export const zoneSummarySchema = z.object({
   zoneId: z.string().min(1),
@@ -10,6 +11,7 @@ export const zoneSummarySchema = z.object({
   detailRefreshedAt: z.string().nullable(),
   developmentMode: z.boolean().nullable(),
   underAttackMode: z.boolean().nullable(),
+  cachePurge: capabilityStateSchema.optional(),
 })
 
 export const zoneListResultSchema = z.object({

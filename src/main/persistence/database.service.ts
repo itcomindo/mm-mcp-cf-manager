@@ -10,6 +10,7 @@ import type { TaskItemState, TaskState } from '@shared/schemas/tasks.schema'
 import type { ZoneSummary } from '@shared/schemas/zones.schema'
 import {
   mergeZoneReadCachePayload,
+  parseZoneCachePurgeState,
   parseZoneDetailRefreshedAt,
   parseZoneReadCacheJson,
   type ZoneReadCacheUpdate,
@@ -168,6 +169,7 @@ export class DatabaseService {
       detailRefreshedAt: parseZoneDetailRefreshedAt(row.capabilities_json),
       developmentMode: flags.developmentMode,
       underAttackMode: flags.underAttackMode,
+      cachePurge: parseZoneCachePurgeState(row.capabilities_json),
       capabilitiesJson: row.capabilities_json,
     }
   }
@@ -553,6 +555,7 @@ export class DatabaseService {
         detailRefreshedAt: parseZoneDetailRefreshedAt(row.capabilities_json),
         developmentMode: flags.developmentMode,
         underAttackMode: flags.underAttackMode,
+        cachePurge: parseZoneCachePurgeState(row.capabilities_json),
       }
     })
   }

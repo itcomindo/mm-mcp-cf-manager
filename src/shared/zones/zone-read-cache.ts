@@ -1,4 +1,4 @@
-import type { ZoneCapabilities } from '@shared/schemas/capabilities.schema'
+import type { CapabilityState, ZoneCapabilities } from '@shared/schemas/capabilities.schema'
 import type { ZoneOverview } from '@shared/schemas/zone-read.schema'
 
 export type StoredZoneReadCache = {
@@ -27,6 +27,10 @@ export function parseZoneReadCacheJson(json: string | null): StoredZoneReadCache
 export function parseZoneDetailRefreshedAt(json: string | null): string | null {
   const refreshed = parseZoneReadCacheJson(json).detailRefreshedAt
   return refreshed ?? null
+}
+
+export function parseZoneCachePurgeState(json: string | null): CapabilityState | undefined {
+  return parseZoneReadCacheJson(json).capabilities?.cachePurge
 }
 
 export function mergeZoneReadCachePayload(

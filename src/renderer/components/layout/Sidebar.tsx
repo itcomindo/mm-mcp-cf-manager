@@ -6,6 +6,7 @@ import { formatTimestamp } from '@renderer/lib/format-timestamp'
 import { useUiStore } from '@renderer/stores/ui-store'
 import { useZonesStore } from '@renderer/stores/zones-store'
 import { BulkActionsBar } from '@renderer/features/bulk/BulkActionsBar'
+import { SidebarPurgeButton } from '@renderer/features/zones/SidebarPurgeButton'
 import { ZoneStatusBadges } from '../zones/ZoneStatusBadges'
 import { Button } from '../ui/Button'
 
@@ -37,6 +38,7 @@ export function Sidebar({ onBulkTaskStarted }: SidebarProps): JSX.Element {
   const setOpenedZone = useUiStore((s) => s.setOpenedZone)
   const toggleZoneSelection = useUiStore((s) => s.toggleZoneSelection)
   const clearSelection = useUiStore((s) => s.clearSelection)
+  const hydrateZones = useZonesStore((s) => s.hydrate)
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -101,51 +103,63 @@ export function Sidebar({ onBulkTaskStarted }: SidebarProps): JSX.Element {
             const isOpened = openedZoneId === zone.zoneId
             const isSelected = selectedZoneIds.includes(zone.zoneId)
             return (
-              <li key={zone.zoneId} className="mb-1">
+              <li key={zone.zoneId} className="mb-1 min-w-0">
                 <div
                   title={zoneRowTitle(zone)}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 ${
+                  className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 ${
                     isOpened ? 'bg-sidebar-active' : isSelected ? 'bg-sidebar-selected' : 'hover:bg-muted'
                   }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleZoneSelection(zone.zoneId)}
-                    aria-label={`Select ${zone.domain}`}
-                    className="cursor-pointer"
-                  />
-                  <button
-                    type="button"
-                    className="min-w-0 flex-1 cursor-pointer truncate text-left text-[0.95em]"
-                    onClick={() => setOpenedZone(zone.zoneId)}
-                  >
-                    {zone.domain}
-                  </button>
-                  <span
-                    className={`h-2 w-2 shrink-0 rounded-full border ${
-                      zone.detailRefreshedAt
-                        ? 'border-[var(--success)] bg-[var(--success)]'
-                        : 'border-muted-foreground bg-transparent'
-                    }`}
-                    title={
-                      zone.detailRefreshedAt
-                        ? strings.sidebar.detailRefreshedTitle(
-                            formatTimestamp(zone.detailRefreshedAt),
-                          )
-                        : strings.sidebar.notDetailRefreshedTitle
-                    }
-                    aria-label={strings.sidebar.detailRefreshMarkerTitle}
-                  />
-                  <ZoneStatusBadges
-                    developmentMode={zone.developmentMode}
-                    underAttackMode={zone.underAttackMode}
-                  />
-                  {isFreePlan(zone.planName) ? (
-                    <span className="rounded bg-muted px-1 text-[0.7em] font-semibold text-muted-foreground">
-                      {strings.sidebar.freeBadge}
-                    </span>
-                  ) : null}
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleZoneSelection(zone.zoneId)}
+                      aria-label={`Select ${zone.domain}`}
+                      className="shrink-0 cursor-pointer"
+                    />
+                    <div className="flex min-w-0 flex-1 items-center gap-0.5">
+                      <button
+                        type="button"
+                        className="min-w-0 flex-1 cursor-pointer truncate text-left text-[0.95em]"
+                        onClick={() => setOpenedZone(zone.zoneId)}
+                      >
+                        {zone.domain}
+                      </button>
+                      <SidebarPurgeButton
+                        zoneId={zone.zoneId}
+                        domain={zone.domain}
+                        cachePurge={zone.cachePurge}
+                        onPurgeComplete={() => void hydrateZones()}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full border ${
+                        zone.detailRefreshedAt
+                          ? 'border-[var(--success)] bg-[var(--success)]'
+                          : 'border-muted-foreground bg-transparent'
+                      }`}
+                      title={
+                        zone.detailRefreshedAt
+                          ? strings.sidebar.detailRefreshedTitle(
+                              formatTimestamp(zone.detailRefreshedAt),
+                            )
+                          : strings.sidebar.notDetailRefreshedTitle
+                      }
+                      aria-label={strings.sidebar.detailRefreshMarkerTitle}
+                    />
+                    <ZoneStatusBadges
+                      developmentMode={zone.developmentMode}
+                      underAttackMode={zone.underAttackMode}
+                    />
+                    {isFreePlan(zone.planName) ? (
+                      <span className="rounded bg-muted px-1 text-[0.7em] font-semibold text-muted-foreground">
+                        {strings.sidebar.freeBadge}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </li>
             )

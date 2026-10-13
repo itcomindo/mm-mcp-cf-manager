@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   mergeZoneReadCachePayload,
+  parseZoneCachePurgeState,
   parseZoneDetailRefreshedAt,
   parseZoneReadCacheJson,
 } from './zone-read-cache'
@@ -8,6 +9,20 @@ import {
 describe('parseZoneReadCacheJson', () => {
   it('returns empty object for null', () => {
     expect(parseZoneReadCacheJson(null)).toEqual({})
+  })
+})
+
+describe('parseZoneCachePurgeState', () => {
+  it('reads cachePurge from capabilities_json payload', () => {
+    const json = JSON.stringify({
+      capabilities: { cachePurge: 'available' },
+    })
+    expect(parseZoneCachePurgeState(json)).toBe('available')
+  })
+
+  it('returns undefined when missing', () => {
+    expect(parseZoneCachePurgeState(null)).toBeUndefined()
+    expect(parseZoneCachePurgeState(JSON.stringify({ capabilities: {} }))).toBeUndefined()
   })
 })
 
