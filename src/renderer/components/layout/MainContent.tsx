@@ -3,6 +3,7 @@ import { strings } from '@renderer/strings/en'
 import { useUiStore, type MainTab } from '@renderer/stores/ui-store'
 import { useZonesStore } from '@renderer/stores/zones-store'
 import { unwrapIpc } from '@renderer/lib/mmcf-client'
+import { AdminDataTab } from '@renderer/features/admin-data/AdminDataTab'
 import { ActivityTab } from '@renderer/features/zones/activity/ActivityTab'
 import { CacheTab } from '@renderer/features/zones/cache/CacheTab'
 import { DnsTab } from '@renderer/features/zones/dns/DnsTab'
@@ -13,7 +14,15 @@ import { ZoneStatusBadges } from '../zones/ZoneStatusBadges'
 import { formatTimestamp } from '@renderer/lib/format-timestamp'
 import { Button } from '../ui/Button'
 
-const tabs: MainTab[] = ['overview', 'dns', 'cache', 'security', 'waf', 'activity']
+const tabs: MainTab[] = [
+  'overview',
+  'dns',
+  'cache',
+  'security',
+  'waf',
+  'activity',
+  'adminData',
+]
 
 export function MainContent(): JSX.Element {
   const activeTab = useUiStore((s) => s.activeTab)
@@ -98,15 +107,18 @@ export function MainContent(): JSX.Element {
             size="sm"
             variant={activeTab === tab ? 'primary' : 'ghost'}
             onClick={() => setActiveTab(tab)}
-            disabled={!openedZoneId}
+            disabled={!openedZoneId && tab !== 'adminData'}
           >
             {strings.tabs[tab]}
           </Button>
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-auto p-4">
-        {!openedZoneId ? (
+        {!openedZoneId && activeTab !== 'adminData' ? (
           <p className="text-muted-foreground">{strings.main.selectDomain}</p>
+        ) : null}
+        {activeTab === 'adminData' ? (
+          <AdminDataTab zoneId={openedZoneId} domain={opened?.domain ?? null} />
         ) : null}
         {openedZoneId && activeTab === 'overview' ? (
           <OverviewTab zoneId={openedZoneId} refreshToken={refreshToken} />

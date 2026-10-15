@@ -25,11 +25,14 @@ import type { TaskQueueService } from '../tasks/task-queue.service'
 import { registerIpAccessHandlers } from './ip-access.handlers'
 import { registerWriteHandlers } from './write.handlers'
 import { registerTaskHandlers } from './tasks.handlers'
+import { registerAdminDataHandlers } from './admin-data.handlers'
+import type { AdminDataService } from '../services/admin-data.service'
 
 const emptySchema = z.object({})
 
 export function registerIpcHandlers(deps: {
   settingsService: SettingsService
+  adminDataService: AdminDataService
   connectionService: ConnectionService
   zoneService: ZoneService
   zoneReadService: ZoneReadService
@@ -49,6 +52,7 @@ export function registerIpcHandlers(deps: {
 }): void {
   const {
     settingsService,
+    adminDataService,
     connectionService,
     zoneService,
     zoneReadService,
@@ -80,6 +84,7 @@ export function registerIpcHandlers(deps: {
   })
   registerTaskHandlers({ taskQueueService, logger })
   registerIpAccessHandlers({ accountIpAccessService, logger })
+  registerAdminDataHandlers({ adminDataService, logger })
 
   ipcMain.handle('mmcf:settings:getAll', () => {
     try {

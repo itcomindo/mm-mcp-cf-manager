@@ -1,5 +1,11 @@
+import { randomUUID } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
 import { join } from 'node:path'
+import type {
+  AdminDataField,
+  AdminDataFieldType,
+  AdminDataPopoverItem,
+} from '@shared/schemas/admin-data.schema'
 import {
   DEFAULT_APP_SETTINGS,
   appSettingsSchema,
@@ -558,6 +564,154 @@ export class DatabaseService {
         cachePurge: parseZoneCachePurgeState(row.capabilities_json),
       }
     })
+  }
+
+  listAdminDataFields(): AdminDataField[] {
+    const rows = this.db
+      .prepare(
+        `SELECT field_id, label, field_type, sort_order, created_at
+         FROM admin_data_fields
+         ORDER BY sort_order ASC, created_at ASC`,
+      )
+      .all() as Array<{
+      field_id: string
+      label: string
+      field_type: AdminDataFieldType
+      sort_order: number
+      created_at: string
+    }>
+
+    return rows.map((row) => ({
+      fieldId: row.field_id,
+      label: row.label,
+      fieldType: row.field_type,
+      sortOrder: row.sort_order,
+      createdAt: row.created_at,
+    }))
+  }
+
+  createAdminDataField(label: string, fieldType: AdminDataFieldType): AdminDataField {
+    const fieldId = randomUUID()
+    const createdAt = new Date().toISOString()
+    const maxRow = this.db
+      .prepare('SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM admin_data_fields')
+      .get() as { max_order: number }
+    const sortOrder = maxRow.max_order + 1
+
+    this.db
+      .prepare(
+        `INSERT INTO admin_data_fields (field_id, label, field_type, sort_order, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+      )
+      .run(fieldId, label, fieldType, sortOrder, createdAt)
+
+    return {
+      fieldId,
+      label,
+      fieldType,
+      sortOrder,
+      createdAt,
+    }
+  }
+
+  updateAdminDataField(fieldId: string, label: string): AdminDataField | null {
+    const existing = this.db
+      .prepare(
+        `SELECT field_id, label, field_type, sort_order, created_at
+         FROM admin_data_fields WHERE field_id = ?`,
+      )
+      .get(fieldId) as
+      | {
+          field_id: string
+          label: string
+          field_type: AdminDataFieldType
+          sort_order: number
+          created_at: string
+        }
+      | undefined
+    if (!existing) return null
+
+    this.db.prepare('UPDATE admin_data_fields SET label = ? WHERE field_id = ?').run(label, fieldId)
+
+    return {
+      fieldId: existing.field_id,
+      label,
+      fieldType: existing.field_type,
+      sortOrder: existing.sort_order,
+      createdAt: existing.created_at,
+    }
+  }
+
+  deleteAdminDataField(fieldId: string): boolean {
+    const result = this.db.prepare('DELETE FROM admin_data_fields WHERE field_id = ?').run(fieldId)
+    return result.changes > 0
+  }
+
+  getZoneAdminDataValues(zoneId: string): Record<string, string> {
+    const rows = this.db
+      .prepare(
+        `SELECT field_id, value FROM zone_admin_data_values WHERE zone_id = ?`,
+      )
+      .all(zoneId) as Array<{ field_id: string; value: string }>
+
+    const values: Record<string, string> = {}
+    for (const row of rows) {
+      values[row.field_id] = row.value
+    }
+    return values
+  }
+
+  saveZoneAdminDataValues(zoneId: string, values: Record<string, string>): void {
+    const now = new Date().toISOString()
+    const upsert = this.db.prepare(
+      `INSERT INTO zone_admin_data_values (zone_id, field_id, value, updated_at)
+       VALUES (?, ?, ?, ?)
+       ON CONFLICT(zone_id, field_id) DO UPDATE SET
+         value = excluded.value,
+         updated_at = excluded.updated_at`,
+    )
+
+    this.db.exec('BEGIN IMMEDIATE')
+    try {
+      for (const [fieldId, value] of Object.entries(values)) {
+        upsert.run(zoneId, fieldId, value, now)
+      }
+      this.db.exec('COMMIT')
+    } catch (error) {
+      this.db.exec('ROLLBACK')
+      throw error
+    }
+  }
+
+  getZoneDomain(zoneId: string): string | null {
+    const row = this.db
+      .prepare('SELECT domain FROM zones WHERE zone_id = ?')
+      .get(zoneId) as { domain: string } | undefined
+    return row?.domain ?? null
+  }
+
+  getAdminDataPopoverItems(zoneId: string): AdminDataPopoverItem[] {
+    const rows = this.db
+      .prepare(
+        `SELECT f.field_id, f.label, f.field_type, v.value
+         FROM admin_data_fields f
+         INNER JOIN zone_admin_data_values v ON v.field_id = f.field_id AND v.zone_id = ?
+         WHERE trim(v.value) != ''
+         ORDER BY f.sort_order ASC, f.created_at ASC`,
+      )
+      .all(zoneId) as Array<{
+      field_id: string
+      label: string
+      field_type: AdminDataFieldType
+      value: string
+    }>
+
+    return rows.map((row) => ({
+      fieldId: row.field_id,
+      label: row.label,
+      fieldType: row.field_type,
+      value: row.value,
+    }))
   }
 
   static resolveDatabasePath(userDataPath: string): string {

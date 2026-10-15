@@ -1,11 +1,11 @@
 import { useMemo, useState, type JSX } from 'react'
 import type { BulkActionKind } from '@shared/schemas/tasks.schema'
-import type { ZoneSummary } from '@shared/schemas/zones.schema'
 import { strings } from '@renderer/strings/en'
 import { formatTimestamp } from '@renderer/lib/format-timestamp'
 import { useUiStore } from '@renderer/stores/ui-store'
 import { useZonesStore } from '@renderer/stores/zones-store'
 import { BulkActionsBar } from '@renderer/features/bulk/BulkActionsBar'
+import { DomainAdminPopover } from '@renderer/features/admin-data/DomainAdminPopover'
 import { SidebarPurgeButton } from '@renderer/features/zones/SidebarPurgeButton'
 import { ZoneStatusBadges } from '../zones/ZoneStatusBadges'
 import { Button } from '../ui/Button'
@@ -16,18 +16,6 @@ type SidebarProps = {
 
 function isFreePlan(planName: string | null): boolean {
   return (planName ?? '').toLowerCase().includes('free')
-}
-
-function zoneRowTitle(zone: ZoneSummary): string {
-  const lines = [
-    zone.detailRefreshedAt
-      ? strings.sidebar.detailRefreshedTitle(formatTimestamp(zone.detailRefreshedAt))
-      : strings.sidebar.notDetailRefreshedTitle,
-  ]
-  if (zone.lastSyncedAt) {
-    lines.push(strings.sidebar.lastSyncedTitle(formatTimestamp(zone.lastSyncedAt)))
-  }
-  return lines.join('\n')
 }
 
 export function Sidebar({ onBulkTaskStarted }: SidebarProps): JSX.Element {
@@ -105,7 +93,6 @@ export function Sidebar({ onBulkTaskStarted }: SidebarProps): JSX.Element {
             return (
               <li key={zone.zoneId} className="mb-1 min-w-0">
                 <div
-                  title={zoneRowTitle(zone)}
                   className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 ${
                     isOpened ? 'bg-sidebar-active' : isSelected ? 'bg-sidebar-selected' : 'hover:bg-muted'
                   }`}
@@ -119,13 +106,15 @@ export function Sidebar({ onBulkTaskStarted }: SidebarProps): JSX.Element {
                       className="shrink-0 cursor-pointer"
                     />
                     <div className="flex min-w-0 flex-1 items-center gap-0.5">
-                      <button
-                        type="button"
-                        className="min-w-0 flex-1 cursor-pointer truncate text-left text-[0.95em]"
-                        onClick={() => setOpenedZone(zone.zoneId)}
+                      <DomainAdminPopover
+                        zoneId={zone.zoneId}
+                        domain={zone.domain}
+                        detailRefreshedAt={zone.detailRefreshedAt}
+                        lastSyncedAt={zone.lastSyncedAt}
+                        onOpenZone={() => setOpenedZone(zone.zoneId)}
                       >
                         {zone.domain}
-                      </button>
+                      </DomainAdminPopover>
                       <SidebarPurgeButton
                         zoneId={zone.zoneId}
                         domain={zone.domain}

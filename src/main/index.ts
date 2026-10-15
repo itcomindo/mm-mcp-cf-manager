@@ -23,6 +23,7 @@ import { WriteActionRunner } from './cloudflare/write-action.runner'
 import { TaskQueueService } from './tasks/task-queue.service'
 import { ZoneReadService } from './cloudflare/zones/zone-read.service'
 import { ConnectionService } from './services/connection.service'
+import { AdminDataService } from './services/admin-data.service'
 import { SettingsService } from './services/settings.service'
 
 const isDev = !app.isPackaged
@@ -94,6 +95,7 @@ async function bootstrap(): Promise<void> {
 
   const database = new DatabaseService(databasePath, logger)
   settingsService = new SettingsService(database)
+  const adminDataService = new AdminDataService(database)
   const credentialService = new CredentialService(userDataPath)
   const mcpClientService = new McpClientService(logger)
   const cloudflareAdapter = new CloudflareMcpAdapter(mcpClientService, logger)
@@ -151,6 +153,7 @@ async function bootstrap(): Promise<void> {
 
   registerIpcHandlers({
     settingsService,
+    adminDataService,
     connectionService,
     zoneService,
     zoneReadService,

@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export const MIGRATION_STATEMENTS: string[] = [
   `CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -66,4 +66,21 @@ export const MIGRATION_STATEMENTS: string[] = [
     created_at TEXT NOT NULL
   );`,
   `CREATE INDEX IF NOT EXISTS idx_activity_zone_created ON activity(zone_id, created_at DESC);`,
+  `CREATE TABLE IF NOT EXISTS admin_data_fields (
+    field_id TEXT PRIMARY KEY,
+    label TEXT NOT NULL,
+    field_type TEXT NOT NULL CHECK (field_type IN ('text', 'textarea')),
+    sort_order INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+  );`,
+  `CREATE TABLE IF NOT EXISTS zone_admin_data_values (
+    zone_id TEXT NOT NULL,
+    field_id TEXT NOT NULL,
+    value TEXT NOT NULL DEFAULT '',
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (zone_id, field_id),
+    FOREIGN KEY (zone_id) REFERENCES zones(zone_id) ON DELETE CASCADE,
+    FOREIGN KEY (field_id) REFERENCES admin_data_fields(field_id) ON DELETE CASCADE
+  );`,
+  `CREATE INDEX IF NOT EXISTS idx_zone_admin_data_zone ON zone_admin_data_values(zone_id);`,
 ]

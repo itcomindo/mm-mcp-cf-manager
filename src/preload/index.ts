@@ -43,6 +43,13 @@ const allowedChannels = new Set([
   'mmcf:ipAccess:list',
   'mmcf:ipAccess:create',
   'mmcf:ipAccess:delete',
+  'mmcf:adminData:listFields',
+  'mmcf:adminData:createField',
+  'mmcf:adminData:updateField',
+  'mmcf:adminData:deleteField',
+  'mmcf:adminData:getZoneValues',
+  'mmcf:adminData:saveZoneValues',
+  'mmcf:adminData:getPopover',
 ])
 
 function invoke<T>(channel: string, payload?: unknown): Promise<T> {
@@ -117,6 +124,15 @@ const api: MmcfApi = {
     list: (payload) => invoke('mmcf:ipAccess:list', payload),
     create: (payload) => invoke('mmcf:ipAccess:create', payload),
     delete: (payload) => invoke('mmcf:ipAccess:delete', payload),
+  },
+  adminData: {
+    listFields: () => invoke('mmcf:adminData:listFields'),
+    createField: (payload) => invoke('mmcf:adminData:createField', payload),
+    updateField: (payload) => invoke('mmcf:adminData:updateField', payload),
+    deleteField: (payload) => invoke('mmcf:adminData:deleteField', payload),
+    getZoneValues: (payload) => invoke('mmcf:adminData:getZoneValues', payload),
+    saveZoneValues: (payload) => invoke('mmcf:adminData:saveZoneValues', payload),
+    getPopover: (payload) => invoke('mmcf:adminData:getPopover', payload),
   },
 }
 

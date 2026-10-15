@@ -41,6 +41,11 @@ import type {
   IpAccessListResult,
 } from '@shared/schemas/ip-access.schema'
 import type { AppSettings } from '@shared/schemas/settings.schema'
+import type {
+  AdminDataField,
+  AdminDataFieldType,
+  AdminDataPopoverResult,
+} from '@shared/schemas/admin-data.schema'
 
 export interface MmcfApi {
   settings: {
@@ -129,6 +134,26 @@ export interface MmcfApi {
     }) => Promise<IpcResult<IpAccessListResult>>
     create: (payload: CreateIpAccessRuleInput) => Promise<IpcResult<WriteActionResult>>
     delete: (payload: DeleteIpAccessRuleInput) => Promise<IpcResult<WriteActionResult>>
+  }
+  adminData: {
+    listFields: () => Promise<IpcResult<{ fields: AdminDataField[] }>>
+    createField: (payload: {
+      label: string
+      fieldType: AdminDataFieldType
+    }) => Promise<IpcResult<AdminDataField>>
+    updateField: (payload: {
+      fieldId: string
+      label?: string
+    }) => Promise<IpcResult<AdminDataField>>
+    deleteField: (payload: { fieldId: string }) => Promise<IpcResult<{ deleted: boolean }>>
+    getZoneValues: (payload: {
+      zoneId: string
+    }) => Promise<IpcResult<{ zoneId: string; values: Record<string, string> }>>
+    saveZoneValues: (payload: {
+      zoneId: string
+      values: Record<string, string>
+    }) => Promise<IpcResult<{ zoneId: string; saved: true }>>
+    getPopover: (payload: { zoneId: string }) => Promise<IpcResult<AdminDataPopoverResult>>
   }
 }
 

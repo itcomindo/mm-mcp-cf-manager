@@ -1,6 +1,13 @@
 import { create } from 'zustand'
 
-export type MainTab = 'overview' | 'dns' | 'cache' | 'security' | 'waf' | 'activity'
+export type MainTab =
+  | 'overview'
+  | 'dns'
+  | 'cache'
+  | 'security'
+  | 'waf'
+  | 'activity'
+  | 'adminData'
 export type AppView = 'main' | 'settings'
 
 type UiState = {
